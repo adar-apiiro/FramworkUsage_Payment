@@ -21,8 +21,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
-
 import com.paypal.api.payments.Amount;
 import com.paypal.api.payments.Details;
 import com.paypal.api.payments.Item;
