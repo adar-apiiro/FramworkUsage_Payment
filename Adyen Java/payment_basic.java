@@ -4,6 +4,7 @@ import com.adyen.enums.Environment;
 import com.adyen.service.checkout.PaymentsApi;
 import com.adyen.model.checkout.*;
 
+public class MainExample {
 // Setup the client and service.
 Client client = new Client("YOUR_API_KEY", Environment.TEST);
 PaymentsApi paymentsApi = new PaymentsApi(client);
@@ -28,3 +29,6 @@ requestOptions.setIdempotencyKey("YOUR_IDEMPOTENCY_KEY");
 
 // Make a request to the /payments endpoint.
 PaymentResponse paymentResponse = paymentsApi.payments(paymentRequest, requestOptions);
+
+}
+
