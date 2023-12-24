@@ -10,6 +10,7 @@ import com.braintreegateway.CustomerRequest;
 import com.braintreegateway.CreditCardRequest;
 import com.braintreegateway.CreditCardOptions;
 import com.braintreegateway.Address;
+
 import java.math.BigDecimal;
 
 public class BraintreePaymentExample {
@@ -28,7 +29,7 @@ public class BraintreePaymentExample {
                 PRIVATE_KEY
         );
 
-        // For simplicity, you can use a hard-coded nonce (replace with actual nonce from client)
+        // For simplicity, you can use a hard-coded nonce (replace with an actual nonce from the client)
         String paymentMethodNonce = "fake-valid-nonce";
 
         // Sale Transaction
@@ -103,4 +104,9 @@ public class BraintreePaymentExample {
             CreditCard updatedCreditCard = updateCreditCardResult.getTarget();
             System.out.println("Updated Credit Card Token: " + updatedCreditCard.getToken());
         } else {
-            for (ValidationError error : updateCreditCardResult.getErrors().getAllDeep
+            for (ValidationError error : updateCreditCardResult.getErrors().getAllDeepValidationErrors()) {
+                System.err.println("Error: " + error.getMessage());
+            }
+        }
+    }
+}
