@@ -1,26 +1,51 @@
-    import com.mangopay.MangoPayApi;
-    import com.mangopay.entities.User;
-    import com.mangopay.entities.BankAccount;
-    import com.mangopay.core.Pagination;
-    import java.util.List;
+import com.mangopay.MangoPayApi;
+import com.mangopay.entities.User;
+import com.mangopay.entities.BankAccount;
+import com.mangopay.core.Pagination;
+import com.mangopay.core.SortDirection;
+import com.mangopay.core.Sorting;
 
-    // ...
+import java.util.List;
 
-    MangoPayApi api = new MangoPayApi();
+public class MangoPayExample {
 
-    // get some user by id
-    User john = api.Users.get(someId);
+    private MangoPayApi api;
 
-    // change and update some of his data
-    john.setTag(john.getTag() + " - CHANGED");
-    api.getUserApi().update(john);
+    public MangoPayExample() {
+        this.api = new MangoPayApi();
+    }
 
-    // get all users (with pagination and sorting)
-    Pagination pagination = new Pagination(1, 8); // get 1st page, 8 items per page
-    Sorting sort = new Sorting();
-    sort.addField("SortingField", SortDirection.asc); // Sorting is an enum, its values: none, asc, desc
-    List<User> users = api.getUserApi().getAll(pagination, sort);
+    public void updateUser(String userId, String additionalTag) {
+        User user = api.Users.get(userId);
+        user.setTag(user.getTag() + " - " + additionalTag);
+        api.getUserApi().update(user);
+    }
 
-    // get his bank accounts
-    pagination = new Pagination(2, 10); // get 2nd page, 10 items per page
-    List<BankAccount> accounts = api.getUserApi().getBankAccounts(john.Id, pagination, sort);
+    public List<User> getAllUsers(int page, int itemsPerPage) {
+        Pagination pagination = new Pagination(page, itemsPerPage);
+        Sorting sort = new Sorting();
+        sort.addField("SortingField", SortDirection.asc);
+        return api.getUserApi().getAll(pagination, sort);
+    }
+
+    public List<BankAccount> getUserBankAccounts(String userId, int page, int itemsPerPage) {
+        Pagination pagination = new Pagination(page, itemsPerPage);
+        Sorting sort = new Sorting();
+        sort.addField("SortingField", SortDirection.asc);
+        return api.getUserApi().getBankAccounts(userId, pagination, sort);
+    }
+
+    public static void main(String[] args) {
+        MangoPayExample mangoPayExample = new MangoPayExample();
+
+        // Example: Update user
+        mangoPayExample.updateUser("someId", "CHANGED");
+
+        // Example: Get all users
+        List<User> users = mangoPayExample.getAllUsers(1, 8);
+
+        // Example: Get user bank accounts
+        List<BankAccount> bankAccounts = mangoPayExample.getUserBankAccounts("someUserId", 2, 10);
+
+    }
+}
