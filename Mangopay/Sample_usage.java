@@ -1,51 +1,62 @@
 import com.mangopay.MangoPayApi;
-import com.mangopay.entities.User;
+import com.mangopay.core.CurrencyIso;
+import com.mangopay.core.Money;
+import com.mangopay.entities.PayOut;
+import com.mangopay.entities.Wallet;
 import com.mangopay.entities.BankAccount;
-import com.mangopay.core.Pagination;
-import com.mangopay.core.SortDirection;
-import com.mangopay.core.Sorting;
 
+import java.util.Arrays;
 import java.util.List;
 
-public class MangoPayExample {
-
-    private MangoPayApi api;
-
-    public MangoPayExample() {
-        this.api = new MangoPayApi();
-    }
-
-    public void updateUser(String userId, String additionalTag) {
-        User user = api.Users.get(userId);
-        user.setTag(user.getTag() + " - " + additionalTag);
-        api.getUserApi().update(user);
-    }
-
-    public List<User> getAllUsers(int page, int itemsPerPage) {
-        Pagination pagination = new Pagination(page, itemsPerPage);
-        Sorting sort = new Sorting();
-        sort.addField("SortingField", SortDirection.asc);
-        return api.getUserApi().getAll(pagination, sort);
-    }
-
-    public List<BankAccount> getUserBankAccounts(String userId, int page, int itemsPerPage) {
-        Pagination pagination = new Pagination(page, itemsPerPage);
-        Sorting sort = new Sorting();
-        sort.addField("SortingField", SortDirection.asc);
-        return api.getUserApi().getBankAccounts(userId, pagination, sort);
-    }
+public class MangoPayPaymentExample {
 
     public static void main(String[] args) {
-        MangoPayExample mangoPayExample = new MangoPayExample();
+        // Initialize MangoPay API
+        MangoPayApi api = new MangoPayApi();
+        api.getConfig().setClientId("your_client_id");
+        api.getConfig().setClientPassword("your_client_password");
+        api.getConfig().setBaseURL("https://api.sandbox.mangopay.com"); // Use the sandbox environment for testing
 
-        // Example: Update user
-        mangoPayExample.updateUser("someId", "CHANGED");
+        try {
+            // Create a Wallet
+            Wallet wallet = new Wallet();
+            wallet.setOwners(Arrays.asList("user_id")); // User ID associated with the wallet
+            wallet.setDescription("My Wallet");
+            wallet.setCurrency(CurrencyIso.EUR);
 
-        // Example: Get all users
-        List<User> users = mangoPayExample.getAllUsers(1, 8);
+            api.getWalletApi().create(wallet);
 
-        // Example: Get user bank accounts
-        List<BankAccount> bankAccounts = mangoPayExample.getUserBankAccounts("someUserId", 2, 10);
+            // Make a Payment
+            PayOut payOut = new PayOut();
+            payOut.setAuthorId("user_id"); // ID of the user initiating the payment
+            payOut.setDebitedWalletId("source_wallet_id"); // ID of the source wallet
+            payOut.setCreditedUserId("recipient_user_id"); // ID of the user receiving the payment
+            payOut.setCreditedWalletId("destination_wallet_id"); // ID of the destination wallet
+            payOut.setDebitedFunds(new Money());
+            payOut.getDebitedFunds().setCurrency(CurrencyIso.EUR);
+            payOut.getDebitedFunds().setAmount(1000); // Amount in cents (1000 cents = 10 EUR)
+            payOut.setFees(new Money());
+            payOut.getFees().setCurrency(CurrencyIso.EUR);
+            payOut.getFees().setAmount(0); // No fees
 
+            api.getPayOutApi().create(payOut);
+
+            // Retrieve User Bank Accounts
+            List<BankAccount> bankAccounts = getUserBankAccounts(api, "user_id", 1, 10);
+            // Process the list of bank accounts as needed
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static List<BankAccount> getUserBankAccounts(MangoPayApi api, String userId, int page, int itemsPerPage) {
+        try {
+            // Fetch user's bank accounts
+            return api.getUserApi().getBankAccounts(userId, page, itemsPerPage);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
